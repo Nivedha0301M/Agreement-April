@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+
+{q:"The Central Council for Research in Ayurvedic Sciences (CCRAS) signed a Memorandum of Understanding (MoU) with Anuvadini AI to translate Ayurveda research publications into how many languages?", options:["10 languages","11 languages","13 languages","15 languages"], answer:2},
+
+{q:"The Memorandum of Understanding (MoU) for translating Ayurveda research into multiple languages was signed between the Central Council for Research in Ayurvedic Sciences (CCRAS) and which Artificial Intelligence (AI)-based language technology platform?", options:["Bhashini AI","Anuvadini AI","Bharat GPT AI","Vani AI"], answer:1},
+
+{q:"Who represented the Central Council for Research in Ayurvedic Sciences (CCRAS) while signing the MoU with Anuvadini AI for multilingual dissemination of Ayurveda research?", options:["Dr. Rajiv Bahl","Professor Vaidya Rabinarayan Acharya","Dr. M. Srinivas","V. Umashankar"], answer:1},
+
+{q:"Dr. Buddha Chandrasekhar, who signed the MoU on behalf of Anuvadini AI, serves as the:", options:["Chairman of Anuvadini AI","Founder of Anuvadini AI","Chief Executive Officer (CEO) of Anuvadini AI","Chief Technology Officer (CTO) of Anuvadini AI"], answer:2},
+
+{q:"The Central Council for Research in Ayurvedic Sciences (CCRAS), which recently partnered with Anuvadini AI, functions under which Ministry?", options:["Ministry of Health and Family Welfare","Ministry of Science and Technology","Ministry of AYUSH","Ministry of Education"], answer:2},
+
+{q:"The Central Council for Research in Ayurvedic Sciences (CCRAS) was established in which year?", options:["1972","1978","1984","1992"], answer:1},
+
+{q:"The Directorate General of Civil Aviation (DGCA) signed an MoU with Gati Shakti Vishwavidyalaya (GSV) primarily to:", options:["Expand international flight routes","Establish aircraft manufacturing hubs","Enhance skill development in the aviation sector","Promote aviation tourism"], answer:2},
+
+{q:"The Memorandum of Understanding (MoU) for aviation skill development was signed between the Directorate General of Civil Aviation (DGCA) and:", options:["Indian Institute of Technology Madras","National Aviation University","Gati Shakti Vishwavidyalaya (GSV)","Indian Institute of Management Ahmedabad"], answer:2},
+
+{q:"Who signed the aviation-sector skill development MoU on behalf of the Directorate General of Civil Aviation (DGCA)?", options:["Rajiv Bansal","Faiz Ahmed Kidwai","Vikram Dev Dutt","Arun Kumar"], answer:1},
+
+{q:"Professor Manoj Choudhury, who signed the MoU with DGCA, is associated with which institution?", options:["National Rail and Transportation Institute","Indian Institute of Science Education and Research","Gati Shakti Vishwavidyalaya (GSV)","Indian Institute of Technology Kanpur"], answer:2},
+
+{q:"The DGCA–GSV collaboration seeks to support the objectives of Atmanirbhar Bharat and which long-term national vision?", options:["India@2030","Developed India 2035","Viksit Bharat 2047","Vision India 2050"], answer:2},
+
+{q:"The headquarters of the Directorate General of Civil Aviation (DGCA) is located in:", options:["Mumbai","New Delhi","Hyderabad","Bengaluru"], answer:1},
+
+{q:"The Directorate General of Civil Aviation (DGCA) was established in:", options:["1927","1935","1948","1956"], answer:0},
+
+{q:"The Science City of Andhra Pradesh (SCAP) signed an MoU with which institution to strengthen science communication and evidence-based policymaking?", options:["CSIR-Central Leather Research Institute","CSIR-National Aerospace Laboratories","CSIR-National Institute of Science Communication and Policy Research (NIScPR)","CSIR-National Environmental Engineering Research Institute"], answer:2},
+
+{q:"The primary objective of the SCAP–CSIR-NIScPR agreement is to:", options:["Establish semiconductor parks","Promote science communication and research collaboration","Develop quantum computing laboratories","Launch a national biotechnology mission"], answer:1},
+
+{q:"Which of the following was identified as a nodal officer under the SCAP–CSIR-NIScPR collaboration?", options:["Dr. Rajesh Gokhale","Dr. Geetha Vani Rayasam","Dr. N. Kalaiselvi","Dr. Ajay Kumar Sood"], answer:1},
+
+{q:"The National Institute of Science Communication and Policy Research (NIScPR) came into existence in:", options:["2018","2019","2021","2023"], answer:2},
+
+{q:"The Council of Scientific and Industrial Research (CSIR), under which NIScPR operates, was established in:", options:["1942","1947","1951","1956"], answer:0},
+
+{q:"The Science City of Andhra Pradesh (SCAP) was established in:", options:["2014","2015","2016","2018"], answer:2},
+
+{q:"Air India recently signed a codeshare agreement with which foreign airline to strengthen connectivity between India and Central Asia?", options:["Air Astana","Uzbekistan Airways","Azerbaijan Airlines","Turkmenistan Airlines"], answer:1},
+
+{q:"Under the Air India–Uzbekistan Airways codeshare arrangement, which Indian city was included among the covered routes to Tashkent?", options:["Ahmedabad","Kolkata","Goa","Jaipur"], answer:2},
+
+{q:"The key objective of the Air India–Uzbekistan Airways codeshare agreement is to:", options:["Launch cargo-only operations","Expand connectivity between India and Central Asia","Promote aircraft leasing activities","Establish a maintenance hub in Uzbekistan"], answer:1},
+
+{q:"Air India traces its origins to Tata Airlines, which was founded in:", options:["1928","1930","1932","1935"], answer:2},
+
+{q:"In which year was Tata Airlines renamed as Air India?", options:["1946","1948","1953","1956"], answer:0},
+
+{q:"The Bharat Coal Gasification and Chemicals Limited (BCGCL) and Mahanadi Coalfields Limited (MCL) signed a land lease agreement for establishing India’s first indigenous:", options:["Coal-to-Methanol Project","Coal-to-Hydrogen Project","Coal-to-Ammonium Nitrate Project","Coal-to-Ethanol Project"], answer:2},
+
+{q:"The proposed coal-to-ammonium nitrate facility under the BCGCL–MCL agreement will be set up at:", options:["lakhanpur, Odisha","Korba, Chhattisgarh","Singrauli, Madhya Pradesh","Dhanbad, Jharkhand"], answer:0},
+
+{q:"What is the planned production capacity of the ammonium nitrate facility under India’s first indigenous coal-to-ammonium nitrate project?", options:["1,000 tonnes per day","1,500 tonnes per day","2,000 tonnes per day","2,500 tonnes per day"], answer:2},
+
+{q:"The technology proposed for the BCGCL–MCL coal-to-ammonium nitrate project is based on:", options:["Imported European technology","Indigenous gasification technology","Japanese clean coal technology","Carbon capture-based fuel technology"], answer:1},
+
+{q:"The estimated investment for India’s first indigenous coal-to-ammonium nitrate project is approximately:", options:["₹15,000 crore","₹18,000 crore","₹20,000 crore","₹25,000 crore"], answer:3},
+
+{q:"The land leased for the BCGCL–MCL project is approximately:", options:["250 acres","300 acres","350 acres","400 acres"], answer:2},
+
+{q:"The Unique Identification Authority of India (UIDAI) entered into an agreement with which digital mapping platform to integrate authorised Aadhaar centres?", options:["Google Maps","Bharat Maps","MapmyIndia Mappls","OpenStreetMap India"], answer:2},
+
+{q:"The UIDAI–MapmyIndia partnership aims to integrate authorised Aadhaar service centres into which application?", options:["DigiLocker","UMANG","Mappls App","Aadhaar Mitra App"], answer:2},
+
+{q:"Under the UIDAI–MapmyIndia collaboration, users will be able to locate:", options:["Passport Seva Kendras only","Aadhaar Seva Kendras and other authorised Aadhaar centres","PAN Facilitation Centres only","Common Service Centres only"], answer:1},
+
+{q:"The Unique Identification Authority of India (UIDAI) was established in:", options:["2009","2010","2014","2016"], answer:3},
+
+{q:"The Aadhaar Seva Kendras (ASKs), covered under the Mappls integration initiative, were launched in:", options:["2017","2018","2019","2020"], answer:2},
+
+{q:"Microsoft signed a Memorandum of Understanding (MoU) with Chandigarh University (CU) to establish a state-of-the-art:", options:["Robotics Innovation Centre","Quantum Computing Lab","Artificial Intelligence (AI) Skill Center","Cybersecurity Research Park"], answer:2},
+
+{q:"The proposed Artificial Intelligence (AI) Skill Center under the Microsoft–Chandigarh University partnership will be located at the university’s:", options:["Chandigarh Campus","Mohali Campus","Ludhiana Campus","Panchkula Campus"], answer:1},
+
+{q:"Which Microsoft initiative is associated with the establishment of the AI Skill Center at Chandigarh University?", options:["Digital India FutureSkills","AI for All","AI Bharat Mission","Azure India Connect"], answer:1},
+
+{q:"The National Stock Exchange of India (NSE) partnered with Indian Gas Exchange Limited (IGX) to launch India’s first:", options:["Carbon Credit Futures","Domestic Benchmark Natural Gas Derivatives","Green Hydrogen Derivatives","LNG Import Futures Contracts"], answer:1},
+
+{q:"The proposed Natural Gas Futures Contracts to be introduced by the National Stock Exchange of India (NSE) under its collaboration with IGX received approval from which regulatory authority?", options:["Reserve Bank of India (RBI)","Petroleum and Natural Gas Regulatory Board (PNGRB)","Securities and Exchange Board of India (SEBI)","Insurance Regulatory and Development Authority of India (IRDAI)"], answer:2},
+
+{q:"India and South Korea recently signed a Plan of Implementation (PoI) to strengthen cooperation in skill development for the shipbuilding and maritime sector. The agreement was signed between the Ministry of Ports, Shipping and Waterways (MoPSW) and which South Korean agency?", options:["Korea Maritime Institute (KMI)","Korea International Cooperation Agency (KOICA)","Korea Trade-Investment Promotion Agency (KOTRA)","Korea Development Institute (KDI)"], answer:1},
+
+{q:"The recently signed India–South Korea Plan of Implementation (PoI) in the shipbuilding sector aligns with the objectives of which long-term maritime vision document?", options:["Sagarmala Vision 2035","Maritime India Vision 2030","Maritime Amrit Kaal Vision (MAKV) 2047","Blue Economy Vision 2050"], answer:2},
+
+{q:"The agreement between the Ministry of Ports, Shipping and Waterways (MoPSW) and Korea International Cooperation Agency (KOICA) was signed in:", options:["Mumbai, Maharashtra","Chennai, Tamil Nadu","Visakhapatnam, Andhra Pradesh","New Delhi, Delhi"], answer:3},
+
+{q:"The primary objective of the India–South Korea Plan of Implementation (PoI) signed by MoPSW and KOICA is to:", options:["Promote coastal tourism infrastructure","Enhance skill development in shipbuilding and maritime sectors","Establish a bilateral shipping corporation","Develop offshore wind energy facilities"], answer:1},
+
+{q:"Which of the following correctly matches South Korea with its capital and currency?", options:["Busan – Yen","Seoul – Won","Seoul – Ringgit","Incheon – Won"], answer:1},
+
+{q:"The Government of Goa and the Cochin Port Authority (CPA) signed an agreement to adopt which pension management platform developed under the Department of Telecommunications ecosystem?", options:["Jeevan Pramaan","SPARSH","SAMPANN","DigiPension"], answer:2},
+
+{q:"The acronym SAMPANN, recently adopted by the Government of Goa and Cochin Port Authority, stands for:", options:["System for Automated Management of Pension and National Network","Scheme for Accounting and Management of Pension and National Network","System for Accounting and Management of Pension","Smart Accounting Mechanism for Pension and National Navigation"], answer:2},
+
+{q:"The key objective behind the adoption of SAMPANN by the Government of Goa is to:", options:["Digitise land records","Modernise tax administration","Streamline pension disbursement","Improve public procurement systems"], answer:2},
+
+{q:"SAMPANN, which was recently adopted by Goa and Cochin Port Authority, was designed, developed and operated by:", options:["NIC","Controller General of Communication Accounts (CGCA)","UIDAI","National Informatics Centre Services Inc. (NICSI)"], answer:1},
+
+{q:"The Controller General of Communication Accounts (CGCA) is primarily associated with which sector?", options:["Telecommunications administration","Railway accounting","Defence finance","Shipping logistics"], answer:0},
+
+{q:"The Cochin Port Authority (CPA), which recently joined the SAMPANN platform, traces its origin to which year?", options:["1923","1928","1935","1942"], answer:1},
+
+{q:"The SAMPANN platform was launched in:", options:["December 2016","December 2017","December 2018","December 2019"], answer:2},
+
+{q:"The Dredging Corporation of India Limited (DCIL) signed a Memorandum of Understanding (MoU) with which foreign shipbuilding company to establish a strategic alliance in maritime services?", options:["Keppel Shipyard Ltd.","Colombo Dockyard PLC (CDPLC)","Hyundai Heavy Industries","Daewoo Shipbuilding & Marine Engineering"], answer:1},
+
+{q:"The strategic alliance between DCIL and Colombo Dockyard PLC (CDPLC) focuses on cooperation in:", options:["Inland waterways and ports only","Shipbuilding, ship repair and maritime services","Cruise tourism development only","Offshore petroleum exploration"], answer:1},
+
+{q:"Who signed the MoU on behalf of Dredging Corporation of India Limited (DCIL)?", options:["Rajesh Tripathi","Captain S. Divakar","T.K. Ramachandran","K. Rajaraman"], answer:1},
+
+{q:"The MoU with DCIL was signed on behalf of Colombo Dockyard PLC (CDPLC) by:", options:["Thimira S. Godakumbura","Dinesh Weerakkody","Nalin Perera","Roshan Fernando"], answer:0},
+
+{q:"The headquarters of Dredging Corporation of India Limited (DCIL) is located in:", options:["Kochi, Kerala","Chennai, Tamil Nadu","Visakhapatnam, Andhra Pradesh","Mumbai, Maharashtra"], answer:2},
+
+{q:"Dredging Corporation of India Limited (DCIL) was incorporated in:", options:["1972","1974","1976","1978"], answer:2},
+
+{q:"Punjab National Bank (PNB) signed an MoU with which government procurement platform to improve financial accessibility for registered sellers?", options:["Open Network for Digital Commerce (ONDC)","Trade Receivables Discounting System (TReDS)","Government e-Marketplace (GeM)","National Single Window System (NSWS)"], answer:2},
+
+{q:"The MoU between Punjab National Bank (PNB) and Government e-Marketplace (GeM) aims primarily to:", options:["Promote agricultural exports","Strengthen financial access for sellers on GeM","Digitise cooperative banking operations","Facilitate municipal bond issuance"], answer:1},
+
+{q:"Under the latest collaboration, Punjab National Bank (PNB) has been integrated as a lending partner on which platform?", options:["GeM e-Bid Portal","GeM Finance Exchange","GeM Sahay Portal","GeM Trade Facilitation Platform"], answer:2},
+
+{q:"Who represented the Government e-Marketplace (GeM) during the signing of the MoU with Punjab National Bank (PNB)?", options:["Talleen Kumar","Ajit B. Chavan","Sanjeev Kumar","Manoj Kumar"], answer:1},
+
+{q:"Punjab National Bank (PNB), recently in news for partnering with GeM, was established in:", options:["1881","1894","1908","1919"], answer:1},
+
+{q:"NTPC Limited signed a strategic non-binding MoU with which French energy major to explore collaboration in nuclear power projects in India?", options:["Engie SA","TotalEnergies","Électricité de France (EDF)","Framatome"], answer:2},
+
+{q:"The key objective of the NTPC–EDF agreement is to:", options:["Develop solar parks in Rajasthan","Establish green hydrogen hubs","Explore collaboration in nuclear power projects","Develop pumped storage facilities"], answer:2},
+
+{q:"The NTPC–EDF nuclear cooperation agreement seeks to leverage which reactor technology of EDF?", options:["AP1000 Reactor","VVER Reactor","European Pressurised Reactor (EPR)","CANDU Reactor"], answer:2},
+
+{q:"NTPC Limited, which recently entered into a nuclear cooperation agreement with EDF, was incorporated in:", options:["1973","1975","1978","1981"], answer:1},
+
+{q:"The Financial Intelligence Unit–India (FIU-IND) signed an MoU with which organisation to combat cyber frauds and financial crimes?", options:["CERT-In","National Crime Records Bureau (NCRB)","Indian Cyber Crime Coordination Centre (I4C)","National Technical Research Organisation (NTRO)"], answer:2},
+
+{q:"The primary purpose of the FIU-IND and I4C agreement is to:", options:["Establish digital banking regulations","Enhance information sharing against cyber fraud and financial crimes","Develop indigenous cybersecurity software","Regulate cryptocurrency exchanges"], answer:1},
+
+{q:"FIU-IND, which recently partnered with I4C, functions under which ministry?", options:["Ministry of Home Affairs","Ministry of Corporate Affairs","Ministry of Finance","Ministry of Electronics and Information Technology"], answer:2},
+
+{q:"The Financial Intelligence Unit–India (FIU-IND) was established in:", options:["November 2002","November 2003","November 2004","November 2005"], answer:2},
+
+{q:"The Indian Cyber Crime Coordination Centre (I4C), which signed an MoU with FIU-IND, was established in:", options:["2016","2017","2018","2019"], answer:2},
+
+{q:"Doordarshan (DD) and the Indian Council for Cultural Relations (ICCR) signed an MoU to promote Indian art, culture and heritage globally through:", options:["Joint satellite manufacturing","Enhanced broadcasting and cultural exchange","Tourism infrastructure development","International film production"], answer:1},
+
+{q:"The MoU between Doordarshan (DD) and Indian Council for Cultural Relations (ICCR) will remain valid for:", options:["One year","Two years","Three years","Five years"], answer:2},
+
+{q:"Who signed the MoU on behalf of Doordarshan (DD)?", options:["Gaurav Dwivedi","K. Satish Nambudiripad","Prasar Bharati Chairman","Navneet Kumar Sehgal"], answer:1},
+
+{q:"The Indian Council for Cultural Relations (ICCR), recently in news for signing an MoU with Doordarshan, was established in:", options:["April 1947","April 1950","April 1952","April 1955"], answer:1},
+
+{q:"The Gujarat Government signed an MoU with Taiwan-linked Allegiance International Company Limited to develop an Indo-Taiwan Industrial Park in which region?", options:["Surat–Hazira","Gandhinagar–Gift City","Sanand–Dholera","Kandla–Mundra"], answer:2},
+
+{q:"The proposed Indo-Taiwan Industrial Park in Gujarat is intended primarily to strengthen the state’s:", options:["Textile and apparel ecosystem","Aerospace manufacturing ecosystem","Semiconductor and electronics manufacturing ecosystem","Pharmaceutical export ecosystem"], answer:2},
+
+{q:"Housing and Urban Development Corporation (HUDCO) and NBCC (India) Limited signed two strategic MoUs mainly for:", options:["Metro rail construction and railway stations","Urban redevelopment and asset monetisation initiatives","Affordable housing financing only","Smart city surveillance systems"], answer:1},
+
+{q:"Under the first MoU signed between Housing and Urban Development Corporation (HUDCO) and NBCC (India) Limited, redevelopment will be undertaken at which government property in New Delhi?", options:["Nirman Bhawan","Shastri Bhawan","August Kranti Bhawan, Bhikaji Cama Place","Krishi Bhawan"], answer:2},
+
+{q:"India and Myanmar recently signed a Memorandum of Understanding (MoU) for the construction of a school in Nay Pyi Taw. The project is intended primarily to:", options:["Establish a technical university campus","Provide high-quality early childhood development environments","Create a defence training institution","Develop a vocational education park"], answer:1},
+
+{q:"The school construction project undertaken through an MoU between the Government of India (GoI) and the Government of Myanmar reflects India's:", options:["Act East Policy","SAGAR Vision","Neighbourhood First Policy","Look West Policy"], answer:2},
+
+{q:"The school project supported by India under the recent MoU will be established in:", options:["Yangon","Mandalay","Nay Pyi Taw","Bago"], answer:2},
+
+{q:"Nay Pyi Taw, where India and Myanmar agreed to construct a school, is the:", options:["Largest commercial city of Myanmar","Capital of Myanmar","Main port city of Myanmar","Financial capital of Myanmar"], answer:1},
+
+{q:"The Memorandum of Understanding (MoU) for the school project was signed between:", options:["Ministry of Education of India and UNESCO","Government of India and Government of Myanmar","Ministry of External Affairs and ASEAN Secretariat","Government of India and Asian Development Bank"], answer:1},
+
+{q:"The Department of Posts (DoP) signed an MoU with which institution to preserve and showcase India's democratic and national heritage?", options:["National Archives of India","Pradhan Mantri Sangrahalaya (PMML)","Indira Gandhi National Centre for the Arts","Nehru Memorial Museum and Library Society"], answer:1},
+
+{q:"The collaboration between the Department of Posts (DoP) and Pradhan Mantri Sangrahalaya (PMML) was announced on the occasion of:", options:["Republic Day celebrations","National Postal Week","PMML Foundation Day","Azadi Ka Amrit Mahotsav closing ceremony"], answer:2},
+
+{q:"The philatelic exhibition organized under the DoP–PMML collaboration was titled:", options:["Bharat Ek Khoj Through Stamps","Unity in Diversity Through Philately","Ek Bharat, Shreshtha Bharat: Celebrating India’s Unity and Democracy through Postage Stamps","Democratic India Through Postal Heritage"], answer:2},
+
+{q:"Three sets of Picture Post Cards were released under the DoP–PMML initiative to commemorate PMML’s 4th Foundation Day and the birth anniversary of:", options:["Mahatma Gandhi","Sardar Vallabhbhai Patel","Dr. B. R. Ambedkar","Jawaharlal Nehru"], answer:2},
+
+{q:"The Department of Posts (DoP), recently in news for signing an MoU with PMML, was established in:", options:["1854","1861","1872","1885"], answer:0},
+
+{q:"The Ministry of Labour & Employment (MoL&E) signed two strategic MoUs with Porter and Gigin Technologies primarily to:", options:["Promote exports through logistics corridors","Strengthen digital job matching and employment opportunities","Develop industrial training institutes","Expand apprenticeship training abroad"], answer:1},
+
+{q:"The job opportunity initiative announced by the Ministry of Labour & Employment (MoL&E) will be implemented through which platform?", options:["Skill India Portal","National Apprenticeship Promotion Scheme Portal","National Career Service (NCS) Portal","PM Kaushal Vikas Dashboard"], answer:2},
+
+{q:"Under the MoU with Porter, the company aims to generate approximately how many job opportunities annually?", options:["2 lakh","4 lakh","6 lakh","8 lakh"], answer:2},
+
+{q:"By the year 2030, Porter has targeted the creation of more than:", options:["10 lakh job opportunities","20 lakh job opportunities","25 lakh job opportunities","30 lakh job opportunities"], answer:3},
+
+{q:"The employment opportunities proposed under the Porter partnership are mainly concentrated in:", options:["Healthcare and nursing roles","Logistics and driving-related roles","Banking and financial services","Electronics manufacturing roles"], answer:1},
+
+{q:"Gigin Technologies, which signed an MoU with MoL&E, is primarily associated with strengthening employment in the:", options:["Semiconductor sector","Gig economy","Aviation sector","Renewable energy sector"], answer:1},
+
+{q:"The technology platform used by Gigin Technologies for job verification is based on:", options:["Blockchain-based authentication","Quantum verification systems","AI-powered Verification Intelligence","Biometric recruitment engines"], answer:2},
+
+{q:"The National Career Service (NCS) Portal, recently in news, was launched in:", options:["2013","2014","2015","2016"], answer:2},
+
+{q:"The Indian Air Force (IAF) signed a strategic agreement with which American aircraft engine manufacturer to establish a depot facility for F404-IN20 engines in India?", options:["Pratt & Whitney","GE Aerospace","Honeywell Aerospace","Rolls-Royce North America"], answer:1},
+
+{q:"The proposed F404-IN20 engine depot facility in India aims to strengthen:", options:["Space launch vehicle manufacturing","Civil aviation training","Maintenance, Repair and Overhaul (MRO) capabilities","Aircraft leasing operations"], answer:2},
+
+{q:"According to the agreement, ownership, operation and maintenance of the F404 engine depot facility will rest with:", options:["GE Aerospace","Hindustan Aeronautics Limited (HAL)","Indian Air Force (IAF)","Defence Research and Development Organisation (DRDO)"], answer:2},
+
+{q:"GE Aerospace plans to deliver how many engines to India by December 2026 under the agreement?", options:["12","16","20","24"], answer:2},
+
+{q:"The Indian Air Force (IAF), which recently signed an agreement with GE Aerospace, was established in:", options:["1930","1932","1935","1942"], answer:1},
+
+{q:"The Technology Development Board (TDB) signed an agreement with Casey Aviation Private Limited for which project?", options:["Advanced Electric Aviation Mission","Boost Electric Jump Take-Off (BE-JTO)","Bharat Hybrid Air Mobility Project","Indigenous eVTOL Development Programme"], answer:1},
+
+{q:"The Boost Electric Jump Take-Off (BE-JTO) project focuses on developing:", options:["Hydrogen-powered cargo aircraft","Advanced hybrid propulsion-based Jump Take-Off systems","Electric railway propulsion systems","Autonomous maritime propulsion units"], answer:1},
+
+{q:"The BE-JTO project integrates:", options:["Solar and wind propulsion technologies","Electric and conventional propulsion systems","Nuclear and electric propulsion systems","Hydrogen and biofuel propulsion systems"], answer:1},
+
+{q:"The Technology Development Board (TDB), which signed the agreement with Casey Aviation, was established in:", options:["1991","1993","1996","1999"], answer:2},
+
+{q:"The Department of Telecommunications (DoT) signed an MoU with the Securities and Exchange Board of India (SEBI) primarily to:", options:["Launch a telecom stock exchange","Regulate digital currencies","Prevent financial fraud arising from misuse of telecom resources","Develop telecom infrastructure financing"], answer:2},
+
+{q:"The DoT–SEBI MoU aims to curb misuse of telecom infrastructure in:", options:["Tax evasion schemes","Securities fraud and investment scams","Customs violations","Corporate insolvency proceedings"], answer:1},
+
+{q:"Who signed the MoU on behalf of the Department of Telecommunications (DoT)?", options:["Rajesh Kumar","Sanjeev Kumar Sharma","Atul Kumar Chaudhary","Neeraj Mittal"], answer:1},
+
+{q:"The Securities and Exchange Board of India (SEBI) became a statutory body in:", options:["1988","1990","1992","1995"], answer:2},
+
+{q:"Razorpay entered into a strategic partnership with which Artificial Intelligence (AI) company to enable instant payments in AI-built applications?", options:["Anthropic","Google DeepMind","OpenAI","Cohere"], answer:2},
+
+{q:"Under the Razorpay–OpenAI partnership, developers will primarily use which OpenAI coding platform?", options:["ChatGPT Studio","Codex","Sora","Operator"], answer:1},
+
+{q:"The collaboration between Razorpay and OpenAI is intended mainly to simplify:", options:["Cloud hosting infrastructure","AI model training","Monetisation of AI-built products","Cybersecurity audits"], answer:2},
+
+{q:"The Financial Intelligence Unit–India (FIU-IND) signed separate MoUs with SEBI and PFRDA to strengthen:", options:["Commodity exports and imports","Data sharing, fraud detection and anti-money laundering measures","Public procurement monitoring","Telecom infrastructure security"], answer:1},
+
+{q:"The FIU-IND–PFRDA agreement provides for the appointment of dedicated nodal officers under which legal framework?", options:["Companies Act, 2013","Insolvency and Bankruptcy Code, 2016","Prevention of Money Laundering Act (PMLA), 2002","Securities Contracts Regulation Act, 1956"], answer:2},
+
+{q:"The Pension Fund Regulatory and Development Authority (PFRDA), which signed an MoU with FIU-IND, was established in:", options:["2001","2002","2003","2004"], answer:2},
+
+{q:"ISRO’s Space Applications Centre (SAC) signed an MoU with which environmental research institution to promote sustainable land management?", options:["TERI","WII","ATREE","CSE"], answer:2},
+
+{q:"The collaboration between ISRO’s SAC and Ashoka Trust for Research in Ecology and the Environment (ATREE) aims to support:", options:["Deep-sea mineral exploration only","Land use planning, climate action, conservation and rural livelihoods","Nuclear energy mapping exclusively","Urban metro rail planning only"], answer:1},
+
+{q:"Under the ISRO SAC–ATREE initiative, approximately what land area—representing nearly 10% of India’s total land area—will be mapped?", options:["219,675 sq. km","259,675 sq. km","319,675 sq. km","379,675 sq. km"], answer:2},
+
+];
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1200;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
